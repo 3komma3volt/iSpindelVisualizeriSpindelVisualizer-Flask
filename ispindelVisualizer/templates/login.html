@@ -1,0 +1,53 @@
+{% extends "main.html"%}
+{% block content %}
+
+<style>
+  .div-center {
+    width: 400px;
+    height: 400px;
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    margin: auto;
+  }
+</style>
+<div class="container mt-5">
+
+  <div class="text-center">
+    <h1>Access iSpindel</h1>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <ul class="flashes list-group">
+    {% for category, message in messages %}
+    <li class="list-group-item">
+      <div>{{message}}</div>
+    </li>
+    {% endfor %}
+    </ul>
+    {% endif %}
+    {% endwith %}
+
+  </div>
+  <form method="post" id="main">
+
+    {{ form.hidden_tag() }}
+
+  <div class="div-center">
+    <div class="form-group">
+      {{ form.login_spindle_id.label }}
+      {{ form.login_spindle_id(class="form-control", id="spindle_id", placeholder="123456") }}
+    </div>
+    <div class="form-group">
+      {{ form.login_spindle_key.label }}
+      {{ form.login_spindle_key(class="form-control", id="spindle_key", placeholder="...") }}
+    </div>
+      {{ form.submit(class="btn btn-primary mt-1") }}
+    </div>
+    </form>
+  </div>
+
+</div>
+
+{% endblock %}

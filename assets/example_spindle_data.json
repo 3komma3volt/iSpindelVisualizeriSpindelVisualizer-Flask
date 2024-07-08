@@ -1,0 +1,11 @@
+{
+  "name": "Myspindel",
+  "ID": 987654,
+  "angle": 88.76007843,
+  "temperature": 25.8125,
+  "temp_units": "C",
+  "battery": 4.280500412,
+  "gravity": 32.94307327,
+  "interval": 1,
+  "RSSI": -68
+}

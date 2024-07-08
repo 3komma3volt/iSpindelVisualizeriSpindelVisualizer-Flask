@@ -1,0 +1,10 @@
+alembic
+Flask
+Flask-Login
+Flask-Migrate
+Flask-SQLAlchemy
+Flask-WTF
+Jinja2
+SQLAlchemy
+WTForms
+flask-bcrypt

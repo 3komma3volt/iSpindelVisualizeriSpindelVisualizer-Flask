@@ -1,0 +1,134 @@
+{% extends "main.html"%}
+{% block content %}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<div class="container mt-5">
+
+  <div class="text-center">
+    <h1 class="d-inline">iSpindel: {{spindle_alias}}</h1>
+    <a class="bi bi-pencil-square d-inline" href="#" data-bs-toggle="modal" data-bs-target="#nameChangeDialog"></a>
+    <p>ID: {{spindle_id}}</p>
+
+    <form method="POST">
+      {{ timespan_form.hidden_tag() }}
+      {{ timespan_form.timespan_select.label(class="mr-sm-2") }}
+      {{ timespan_form.timespan_select(class="mr-sm-2 mb-2", onchange="this.form.submit()") }}
+    </form>
+  </div>
+
+  <div class='chart-container' style='position: relative; height:40vh;'>
+    <canvas id='spindledata'></canvas>
+  </div>
+
+  <script>
+    const ctxChart = document.getElementById('spindledata');
+
+    new Chart(ctxChart, {
+      type: 'line',
+      data: {
+        labels: [
+        {% for ts in measurement_date %}'{{ts}}', {% endfor %},
+        ],
+        datasets: [{
+            label: 'Gravity',
+            data: [{% for grav_val in gravity %}{{grav_val}}, {% endfor %}],
+            borderWidth: 2,
+            yAxisID: 'y3',
+          },
+          {
+            label: 'Temperature',
+            data: [{% for temp_val in temperature %}{{temp_val}}, {% endfor %}],
+            borderWidth: 1,
+            yAxisID: 'y1',
+          },
+          {
+            label: 'Battery',
+            data: [{% for bat_val in battery %}{{bat_val}}, {% endfor %}],
+            borderWidth: 1,
+            yAxisID: 'y2',
+            hidden: true,
+          },
+          {
+            label: 'Angle',
+            data: [{% for ang_val in angle %}{{ang_val}}, {% endfor %}],
+            borderWidth: 1,
+            yAxisID: 'y',
+            hidden: true,
+          },
+        ]
+      },
+      options: {
+        maintainAspectRatio: false,
+        plugins: {
+          legend: {
+            display: true,
+            position: 'top'
+          }
+        },
+        scales: {
+          y: {
+            title: {
+              display: true,
+              text: 'Angle/°'
+            },
+            beginAtZero: false,
+            position: 'right',
+
+          },
+          y1: {
+            title: {
+              display: true,
+              text: 'Temperature/°'
+            },
+            beginAtZero: false
+
+          },
+          y2: {
+            title: {
+              display: true,
+              text: 'Battery/V'
+            },
+            beginAtZero: false,
+            position: 'right',
+
+          },
+          y3: {
+            title: {
+              display: true,
+              text: 'Gravity'
+            },
+            beginAtZero: false
+
+          }
+        }
+      }
+    });
+  </script>
+</div>
+
+<div class="modal fade" id="nameChangeDialog" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5">Rename iSpindel</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <form method="POST">
+        {{ name_change_form.hidden_tag() }}
+        <div class="modal-body">
+          <div class="form-group">
+            {{ name_change_form.new_spindle_name.label }}
+            {{ name_change_form.new_spindle_name(class="form-control") }}
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+{% endblock %}
