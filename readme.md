@@ -10,8 +10,9 @@ This is the Flask version of the iSpindel Visualizer. For some people it may be 
 
     python -m venv ivisu
     cd ivisu
-    git clone https://github.com/3komma3volt/iSpindelVisualizeriSpindelVisualizer-Flask.git .
-    Scripts\activate
+    git clone https://github.com/3komma3volt/iSpindelVisualizeriSpindelVisualizer-Flask.git
+    cd iSpindelVisualizeriSpindelVisualizer-Flask
+    ..\Scripts\activate
     pip install -r requirements.txt
     python app.py
 
