@@ -8,3 +8,4 @@ Jinja2
 SQLAlchemy
 WTForms
 flask-bcrypt
+gunicorn 
