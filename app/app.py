@@ -1,8 +1,8 @@
 from ispindelVisualizer import app, db
 from ispindelVisualizer.models import Spindles, Spindle_data
-from ispindelVisualizer.forms import LoginForm, TimespanForm, NameChangeForm
+from ispindelVisualizer.forms import LoginForm, TimespanForm, NameChangeForm, DataDeleteForm
 
-from flask import render_template, redirect, request, url_for, flash,abort
+from flask import render_template, redirect, request, url_for, flash
 from flask_bcrypt import Bcrypt
 from flask_login import login_user, login_required, logout_user, current_user
 from sqlalchemy import desc
@@ -23,7 +23,7 @@ def update_spindle():
     
     required_json_fields = ["name", "ID", "angle", "temperature", "temp_units", "battery", "gravity", "interval", "RSSI"]
     for required_key in required_json_fields:
-        if not required_key in json_post_data:
+        if required_key not in json_post_data:
             return f"Error: Missing data {required_key}"
     
     stored_spindle = Spindles.query.filter_by(spindle_id=json_post_data['ID']).first()
@@ -61,6 +61,13 @@ def index():
 
     ts_form = TimespanForm(timespan_select=14)
     nc_form = NameChangeForm()
+    ds_form = DataDeleteForm()
+
+    if ds_form.validate_on_submit():
+        if ds_form.delete_data.data:
+            Spindle_data.query.filter_by(spindle_id=current_user.spindle_id).delete()
+            db.session.commit()
+            flash('Data deleted')
 
     if nc_form.validate_on_submit():
         new_name = nc_form.new_spindle_name.data  
@@ -75,7 +82,13 @@ def index():
     timespan = 14
     if ts_form.validate_on_submit():
         timespan = int(ts_form.timespan_select.data)
-
+    if last_entry is None:
+        return render_template("dashboard.html", timespan_form=ts_form, 
+                                            name_change_form=nc_form, 
+                                            data_delete_form=ds_form,
+                                            spindle_alias = current_user.spindle_alias, 
+                                            spindle_id = current_user.spindle_id,)
+    
     last_date = last_entry.created_at - timedelta(days=timespan)
 
     battery = []
@@ -90,12 +103,21 @@ def index():
         battery.append(res.battery)
         gravity.append(res.gravity)
         angle.append(res.angle)
-        measurement_date.append(res.created_at)
+        if res.created_at is not None:
+            date_short = res.created_at.strftime("%d.%m. %H:%M")
+        measurement_date.append(date_short)
         temperature.append(res.temperature)
     
-    return render_template("dashboard.html", timespan_form=ts_form, name_change_form=nc_form, spindle_alias = current_user.spindle_alias, 
-                                             spindle_id = current_user.spindle_id,
-                                             battery=battery, gravity=gravity, angle=angle, measurement_date=measurement_date, temperature=temperature)
+    return render_template("dashboard.html", timespan_form=ts_form, 
+                                            name_change_form=nc_form, 
+                                            data_delete_form=ds_form,
+                                            spindle_alias = current_user.spindle_alias, 
+                                            spindle_id = current_user.spindle_id,
+                                            battery=battery, 
+                                            gravity=gravity, 
+                                            angle=angle, 
+                                            measurement_date=measurement_date, 
+                                            temperature=temperature)
 
 @app.route("/login", methods=['GET', 'POST'])
 def login():
@@ -107,7 +129,7 @@ def login():
         if spindle is not None and bc.check_password_hash(spindle.spindle_key, login_form.login_spindle_key.data):
                 login_user(spindle)
                 next = request.args.get('next')
-                if next == None or not next[0]=='/':
+                if next is None or not next[0]=='/':
                     next = url_for('index')
                 return redirect(next) 
         else:

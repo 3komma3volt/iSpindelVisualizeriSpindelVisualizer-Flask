@@ -8,18 +8,36 @@
   <div class="text-center">
     <h1 class="d-inline">iSpindel: {{spindle_alias}}</h1>
     <a class="bi bi-pencil-square d-inline" href="#" data-bs-toggle="modal" data-bs-target="#nameChangeDialog"></a>
-    <p>ID: {{spindle_id}}</p>
-
+    <a class="bi bi-eraser d-inline" href="#" data-bs-toggle="modal" data-bs-target="#clearDataModal"></a>
+    <div class="mt-1"><span class="badge rounded-pill text-bg-primary">ID: {{spindle_id}}</span></div>
+    <div class="mt-2">
     <form method="POST">
       {{ timespan_form.hidden_tag() }}
       {{ timespan_form.timespan_select.label(class="mr-sm-2") }}
       {{ timespan_form.timespan_select(class="mr-sm-2 mb-2", onchange="this.form.submit()") }}
     </form>
+    </div>
   </div>
 
-  <div class='chart-container' style='position: relative; height:40vh;'>
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+  <ul class="flashes list-group mb-2">
+  {% for category, message in messages %}
+  <li class="list-group-item">
+    <div>{{message}}</div>
+  </li>
+  {% endfor %}
+  </ul>
+  {% endif %}
+  {% endwith %}
+
+  {% if not measurement_date %}
+  <div class="alert alert-warning" role="alert">No data available.</div>
+  {% else %}
+  <div class='chart-container' style='position: relative; height:60vh;'>
     <canvas id='spindledata'></canvas>
   </div>
+    {% endif %}
 
   <script>
     const ctxChart = document.getElementById('spindledata');
@@ -130,5 +148,38 @@
     </div>
   </div>
 </div>
+
+<div class="modal fade" id="clearDataModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h1 class="modal-title fs-5" id="exampleModalLabel">Clear data</h1>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+      <form method="POST">
+        {{ data_delete_form.hidden_tag() }}
+        <div class="form-check">
+          {{ data_delete_form.delete_data(class="form-check-input") }}
+          {{ data_delete_form.delete_data.label() }}
+
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        {{ data_delete_form.submit(class="btn btn-danger", disabled=True) }}
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const check = document.getElementById('delete_data');
+  const button = document.getElementById('submit');
+  check.addEventListener('change', () => {
+    button.disabled = !check.checked;
+  });
+  </script>
 
 {% endblock %}
