@@ -1,4 +1,5 @@
 import os
+import secrets
 from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
@@ -9,7 +10,7 @@ login_manager = LoginManager()
 app = Flask(__name__)
 basedir = os.path.abspath(os.path.dirname(__file__))
 
-app.config['SECRET_KEY'] = 'bdKFQ67JgjSndJSjIkuzqXBY6fS1adSt'
+app.config['SECRET_KEY'] = secrets.token_hex(16)
 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///' + os.path.join(basedir, 'ispindelvisualizer.sqlite')
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
